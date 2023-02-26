@@ -1,0 +1,5 @@
+---
+# tasks file for test_django_polls
+- name: Check link Django polls
+  command: "curl http://localhost:{{ port }}/polls/"
+  register: output_django_polls_result

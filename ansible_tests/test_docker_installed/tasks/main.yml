@@ -1,0 +1,5 @@
+---
+# tasks file for test_docker_installed
+- name: Test installation of docker
+  command: docker ps
+  register: output_docker_installed 

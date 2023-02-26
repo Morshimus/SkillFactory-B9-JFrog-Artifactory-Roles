@@ -1,0 +1,5 @@
+---
+# tasks file for test_django_admin
+- name: Check link Django admin
+  command: "curl http://localhost:{{ port }}/admin/login/?next=/admin/"
+  register: output_django_admin_result

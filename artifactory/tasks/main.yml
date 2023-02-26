@@ -1,0 +1,134 @@
+---
+# tasks file for artifactory
+- name: Install dependencies for JFrog artifactory
+  yum:
+   name:
+     - wget
+   state: latest
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_version == "7.9"
+    - ansible_distribution_file_variety == "RedHat"
+
+- name: Check if JFrog Artifactory download file is  exist
+  stat:
+     path: /tmp/artifactory-pro.rpm
+  register: result_jfrog_artifactory_rpm_bundle
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_version == "7.9"
+    - ansible_distribution_file_variety == "RedHat"
+
+
+- name: Download JFrog Artifactory Package RPM
+  shell:  wget -O /tmp/artifactory-pro.rpm "https://releases.jfrog.io/artifactory/artifactory-pro-rpms/jfrog-artifactory-pro/jfrog-artifactory-pro-[RELEASE].rpm"
+  args:
+   executable: /usr/bin/bash 
+  when:
+    - not result_jfrog_artifactory_rpm_bundle.stat.exists
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_version == "7.9"
+    - ansible_distribution_file_variety == "RedHat"  
+
+
+- name: Check if JFrog Artifactory Installed
+  stat:
+     path: /opt/jfrog/artifactory/app/bin
+  register: result_jfrog_artifactory_installed
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_version == "7.9"
+    - ansible_distribution_file_variety == "RedHat"
+
+
+- name: Install JFrog Artifactory Package RPM
+  yum:
+   name:
+     - /tmp/artifactory-pro.rpm
+   state: present
+  when:
+    - not result_jfrog_artifactory_installed.stat.exists
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_version == "7.9"
+    - ansible_distribution_file_variety == "RedHat"  
+
+- name: Check if JFrog Artifactory Installed
+  stat:
+     path: /etc/init.d/artifactory.disabled
+  register: result_jfrog_artifactory_service_installed
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_version == "7.9"
+    - ansible_distribution_file_variety == "RedHat"
+
+- name: Install Service JFrog Artifactory  
+  shell: ./installService.sh
+  args:
+     chdir: /opt/jfrog/artifactory/app/bin
+     executable: /bin/sh
+  when: 
+     - not result_jfrog_artifactory_service_installed.stat.exists
+
+
+#- name: Configure JFrog Artifactory 
+#  template:
+#    src: system.yaml.j2
+#    dest: /opt/jfrog/artifactory/var/etc/system.yaml
+#    backup: yes
+#    mode: '0600' 
+
+- name: Start Service JFrog Artifactory MOLECULE
+  shell: /opt/jfrog/artifactory/app/bin/artifactoryManage.sh start
+  args:
+    executable: /bin/bash
+  when: molecule_yml is defined
+
+
+- name: Enable Jfrog Artifactory service
+  service:
+     name: artifactory
+     state: started
+     enabled: yes
+  when: molecule_yml is not defined
+
+
+- name: Create Change Admin Password json JFrog 
+  template:
+    src: change_admin_passwd.json.j2
+    dest: /opt/jfrog/artifactory/var/etc/change_admin_passwd.json
+    mode: '0600' 
+
+- name: POST Admin Password json JFrog 
+  shell: |
+   cd /opt/jfrog/artifactory/var/etc && \
+   curl -k -X POST 'http://localhost:8046/artifactory/api/security/users/authorization/changePassword' \
+   -u admin:'password' \
+   -H 'content-type: application/json'  \
+   -d @change_admin_passwd.json
+  args:
+    executable: /bin/bash
+  
+
+
+- name: Create License json Artifactory JFrog 
+  template:
+    src: licenses_artifactory.json.j2
+    dest: /opt/jfrog/artifactory/var/etc/licenses_artifactory.json
+    mode: '0600' 
+  
+- name: POST License json Artifactory JFrog 
+  shell: |
+   cd /opt/jfrog/artifactory/var/etc && \
+   curl -k -X POST 'http://localhost:8046/artifactory/api/system/license' \
+   -u admin:'password' \
+   -H 'content-type: application/json'  \
+   -d @licenses_artifactory.json
+  args:
+    executable: /bin/bash
+
+
+- name: Create License json Xray JFrog
+  template:
+    src: licenses_xray.json.j2
+    dest: /opt/jfrog/artifactory/var/etc/licenses_xray.json
+    mode: '0600' 

@@ -1,0 +1,5 @@
+---
+# tasks file for test_postgresql
+- name: Login to postgresql instance and get data from sys table
+  command: sudo -u postgres psql -c "select * from pg_stat_activity;"
+  register: output_postgresql_result

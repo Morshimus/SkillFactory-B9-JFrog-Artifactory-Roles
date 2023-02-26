@@ -1,0 +1,11 @@
+---
+# tasks file for test_users_mgmt
+- name: Check that the user home path exists
+  stat:
+    path: "/home/{{ username }}"
+  register: output_users_mgmt_home
+
+- name: Check that the user home path exists
+  command:  sudo -u {{ username }} /bin/bash -c "touch /run/test" && sudo -u {{ username }} /bin/bash -c "rm -f /run/test" && sudo -u {{ username }} /bin/bash -c "whoami"
+  register: output_users_mgmt_sudo
+  failed_when: "'root' in output_users_mgmt_sudo"
