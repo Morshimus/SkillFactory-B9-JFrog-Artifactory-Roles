@@ -1,0 +1,33 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+  roles:
+   - role: tests/test_port
+     vars:
+       port: "8046"
+   - role: tests/test_django_polls
+     vars:
+       port: "8001"
+   - role: tests/test_django_admin
+     vars:
+       port: "8001"
+  tasks:
+
+  - name: check artifactory port result 
+    assert:
+        that:
+           - "{{ output_port.failed }} == false"    
+
+  - name: check django polls work result 
+    assert:
+        that:
+           - "'<link rel=\"stylesheet\" href=\"/static/polls/style.css\">' in output_django_polls_result.stdout"  
+
+  - name: check django admin work result 
+    assert:
+        that:
+           - "'Django administration' in output_django_admin_result.stdout" 
+
