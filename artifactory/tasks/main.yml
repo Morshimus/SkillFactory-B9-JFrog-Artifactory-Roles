@@ -70,45 +70,46 @@
      - not result_jfrog_artifactory_service_installed.stat.exists
 
 
-#- name: Configure JFrog Artifactory 
-#  template:
-#    src: system.yaml.j2
-#    dest: /opt/jfrog/artifactory/var/etc/system.yaml
-#    backup: yes
-#    mode: '0600' 
+- name: Configure JFrog Artifactory 
+  template:
+    src: system.yaml.j2
+    dest: /opt/jfrog/artifactory/var/etc/system.yaml
+    backup: yes
+    mode: '0600'
+    owner: artifactory
+    group: artifactory     
 
-- name: Start Service JFrog Artifactory MOLECULE
-  shell: /opt/jfrog/artifactory/app/bin/artifactoryManage.sh start
-  args:
-    executable: /bin/bash
-  when: molecule_yml is defined
+
+- name: Check if JFrog Artifactory Access folder exist
+  stat:
+     path: /opt/jfrog/artifactory/var/etc/access
+  register: result_jfrog_access_folder
+
+- name: Create JFrog Artifactory Access folder
+  file:
+    path: /opt/jfrog/artifactory/var/etc/access
+    state: directory
+  when: not result_jfrog_access_folder.stat.exists
+
+- name: Create bootstrap.creds JFrog 
+  template:
+    src: bootstrap.creds.j2
+    dest: /opt/jfrog/artifactory/var/etc/access/bootstrap.creds
+    mode: '0600' 
+    owner: artifactory
+    group: artifactory
 
 
 - name: Enable Jfrog Artifactory service
   service:
      name: artifactory
-     state: started
+     state: restarted
      enabled: yes
-  when: molecule_yml is not defined
 
-
-- name: Create Change Admin Password json JFrog 
-  template:
-    src: change_admin_passwd.json.j2
-    dest: /opt/jfrog/artifactory/var/etc/change_admin_passwd.json
-    mode: '0600' 
-
-- name: POST Admin Password json JFrog 
-  shell: |
-   cd /opt/jfrog/artifactory/var/etc && \
-   curl -k -X POST 'http://localhost:8046/artifactory/api/security/users/authorization/changePassword' \
-   -u admin:'password' \
-   -H 'content-type: application/json'  \
-   -d @change_admin_passwd.json
-  args:
-    executable: /bin/bash
+- name: Pause for 30 seconds to start Jfrog Artifactory API
+  pause:
+    seconds: 30
   
-
 
 - name: Create License json Artifactory JFrog 
   template:
@@ -120,7 +121,7 @@
   shell: |
    cd /opt/jfrog/artifactory/var/etc && \
    curl -k -X POST 'http://localhost:8046/artifactory/api/system/license' \
-   -u admin:'password' \
+   -u "{{ jfrog_artifactory_username }}":"{{ jfrog_artifactory_password }}" \
    -H 'content-type: application/json'  \
    -d @licenses_artifactory.json
   args:

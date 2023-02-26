@@ -5,9 +5,10 @@ driver:
   name: docker
 platforms:
   - name: centos7
-    image: quay.io/centos/centos:7
+    image: morsh92/centos7-with-systemd:latest
     privileged: true
     pre_build_image: true
+    command: /usr/sbin/init
     volumes:
      - /sys/fs/cgroup:/sys/fs/cgroup:ro
 provisioner:

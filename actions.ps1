@@ -120,7 +120,7 @@ function molecule {
      }else{
 
      docker run --rm -d --name=molecule-$role `
-     -v  $path/molecule:/opt/molecule `
+     -v  $path/molecule:/opt/molecule -v  /sys/fs/cgroup:/sys/fs/cgroup:ro `
      --privileged `
       morsh92/molecule:dind
      }
