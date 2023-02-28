@@ -1,2 +1,4 @@
 ---
-# defaults file for test_django_admin
+# defaults file for test_artifactory_repository
+jfrog_artifactory_username: "morsh-adm"
+jfrog_artifactory_password: "OyprEzXsqUQbU3HWawTK"

@@ -1,0 +1,21 @@
+---
+# handlers file for postgresql-server
+- name: Restart Postgresql Service
+  listen: restart_postgresql
+  service:
+     name: postgresql
+     state: restarted
+  when: molecule_yml is not defined 
+
+- name: Stop Postgresql Service
+  listen: stop_postgresql
+  service:
+     name: postgresql
+     state: stopped
+  when: molecule_yml is not defined 
+
+
+- name: Restart Postgresql Service
+  listen: restart_postgresql
+  command: sudo -u postgres /lib/postgresql/{{ pg_version }}/bin/pg_ctl  restart -D /etc/postgresql/{{pg_version}}/main -s -w -t 15
+  when: molecule_yml is defined 

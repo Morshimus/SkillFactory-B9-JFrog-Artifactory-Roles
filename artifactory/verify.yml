@@ -8,12 +8,10 @@
    - role: tests/test_port
      vars:
        port: "8046"
-   - role: tests/test_django_polls
+   - role: tests/test_artifactory_repository
      vars:
-       port: "8001"
-   - role: tests/test_django_admin
-     vars:
-       port: "8001"
+       port: "8046"
+       
   tasks:
 
   - name: check artifactory port result 
@@ -21,13 +19,9 @@
         that:
            - "{{ output_port.failed }} == false"    
 
-  - name: check django polls work result 
+  - name: check jfrog artifactory repositories work result 
     assert:
         that:
-           - "'<link rel=\"stylesheet\" href=\"/static/polls/style.css\">' in output_django_polls_result.stdout"  
+           - "'example-repo-local' in output_jfrog_artifactory_repo_result.stdout"  
 
-  - name: check django admin work result 
-    assert:
-        that:
-           - "'Django administration' in output_django_admin_result.stdout" 
 

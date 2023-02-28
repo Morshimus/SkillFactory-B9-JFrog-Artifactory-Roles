@@ -1,0 +1,4 @@
+---
+# defaults file for postgresql-server
+pg_version: "14"
+pg_data_root: /opt/pg_data

@@ -1,0 +1,23 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+  roles:
+   - role: tests/test_port
+     vars:
+       port: "5432"
+   - role: tests/test_postgresql
+  tasks:
+
+  - name: check postgresql port result 
+    assert:
+        that:
+           - "{{ output_port.failed }} == false"    
+
+  - name: check postgresql work result 
+    assert:
+        that:
+           - "{{ output_postgresql_result.failed }} == false"  
+

@@ -1,5 +1,8 @@
 ---
-# tasks file for test_django_admin
-- name: Check link Django admin
-  command: "curl http://localhost:{{ port }}/admin/login/?next=/admin/"
-  register: output_django_admin_result
+# tasks file for test_artifactory_repository
+- name: Check link Jfrog Artifactory admin
+  shell: | 
+     curl -k -X GET 'http://localhost:{{ port }}/artifactory/api/repositories' \
+     -u "{{ jfrog_artifactory_username }}":"{{ jfrog_artifactory_password }}" \
+     -H 'content-type: application/json'
+  register: output_jfrog_artifactory_repo_result
