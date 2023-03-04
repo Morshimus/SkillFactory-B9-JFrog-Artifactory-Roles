@@ -7,6 +7,12 @@ platforms:
   - name: ubuntu-22-04
     image: morsh92/ubuntu-22-04-with-py3:latest
     pre_build_image: true
+  - name: ubuntu-20-04
+    image: morsh92/ubuntu-20-04-with-py3:latest
+    pre_build_image: true  
+  - name: centos7
+    image: quay.io/centos/centos:7
+    pre_build_image: true
 provisioner:
   name: ansible
 verifier:

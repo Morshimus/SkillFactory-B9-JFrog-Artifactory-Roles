@@ -1,5 +1,15 @@
 ---
 # tasks file for artifactory
+
+- name: Install Postgresql for tests MOLECULE
+  include_role:
+   name: postgresql
+  vars:
+     pg_data_root: /opt/pg_data  
+  run_once: true
+  when: molecule_yml is defined
+
+
 - name: Install dependencies for JFrog artifactory
   yum:
    name:
@@ -128,8 +138,3 @@
     executable: /bin/bash
 
 
-- name: Create License json Xray JFrog
-  template:
-    src: licenses_xray.json.j2
-    dest: /opt/jfrog/artifactory/var/etc/licenses_xray.json
-    mode: '0600' 

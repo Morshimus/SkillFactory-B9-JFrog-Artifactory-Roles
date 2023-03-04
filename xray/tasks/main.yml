@@ -1,0 +1,8 @@
+---
+# tasks file for xray
+
+- name: Create License json Xray JFrog
+  template:
+    src: licenses_xray.json.j2
+    dest: /opt/jfrog/artifactory/var/etc/licenses_xray.json
+    mode: '0600' 

@@ -15,7 +15,20 @@
   when: molecule_yml is not defined 
 
 
-- name: Restart Postgresql Service
+- name: Restart Postgresql Service Ubuntu20-22 MOLECULE
   listen: restart_postgresql
   command: sudo -u postgres /lib/postgresql/{{ pg_version }}/bin/pg_ctl  restart -D /etc/postgresql/{{pg_version}}/main -s -w -t 15
-  when: molecule_yml is defined 
+  when: 
+    - molecule_yml is defined 
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_version == "20.04" or "22.04"
+    - ansible_distribution_file_variety == "Debian" 
+
+- name: Restart Postgresql Service CentOS7  MOLECULE
+  listen: restart_postgresql
+  command: sudo -u postgres /usr/pgsql-{{ pg_version }}/bin/pg_ctl  restart -D {{ pg_data_root }} -s -w -t 15
+  when: 
+    - molecule_yml is defined 
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_version == "7.9"
+    - ansible_distribution_file_variety == "RedHat"

@@ -1,1 +1,3 @@
-$rolereq = @()
+$rolereq = @(
+"postgresql"    
+)
