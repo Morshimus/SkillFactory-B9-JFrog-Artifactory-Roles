@@ -104,18 +104,6 @@
     mode: '0750'
    
     
-- name: Postgresql conf.d dir creation Redhat like
-  file:
-    path: "{{ pg_data_root }}/conf.d"
-    state: directory
-    owner: postgres
-    group: postgres
-    mode: '0750'
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_version == "7.9"
-    - ansible_distribution_file_variety == "RedHat" 
-
 - name: Install sudo for testing  purpose Apt MOLECULE
   apt:
     update_cache: no
@@ -141,9 +129,21 @@
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_version == "20.04" or "22.04"
     - ansible_distribution_file_variety == "Debian" 
+     
 
 - name: Initialize postgresql db at new location RedHat like
   command: sudo -u postgres /usr/pgsql-{{ pg_version }}/bin/initdb -D {{ pg_data_root }}
+  when:
+    - not pg_data_result.stat.exists
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_version == "7.9"
+    - ansible_distribution_file_variety == "RedHat" 
+
+- name: Postgresql conf.d dir creation Redhat like
+  shell: |
+   mkdir {{ pg_data_root }}/conf.d
+  args:
+    executable: /bin/bash
   when:
     - not pg_data_result.stat.exists
     - ansible_distribution == "CentOS"
